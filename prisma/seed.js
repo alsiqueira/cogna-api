@@ -1,36 +1,46 @@
 import { PrismaClient } from '@prisma/client';
+import fetch from 'node-fetch';
+
 const prisma = new PrismaClient();
 
-async function main() {
-  await prisma.produto.createMany({
-    data: [
-      {
-        nome: 'Caderno Universitário',
-        descricao: 'Caderno com 200 folhas',
-        valor: 29.9,
-        foto: 'https://exemplo.com/caderno.jpg',
-      },
-      {
-        nome: 'Caneta Azul',
-        descricao: 'Caneta esferográfica azul',
-        valor: 2.5,
-        foto: 'https://exemplo.com/caneta.jpg',
-      },
-      {
-        nome: 'Mochila Escolar',
-        descricao: 'Mochila resistente para estudantes',
-        valor: 99.0,
-        foto: 'https://exemplo.com/mochila.jpg',
-      },
-    ],
-  });
+async function fetchProducts() {
+  try {
+    const response = await fetch('https://fakestoreapi.com/products?limit=20');
+    const products = await response.json();
+    return products.map(product => ({
+      nome: product.title,
+      descricao: product.description,
+      valor: product.price,
+      foto: product.image
+    }));
+  } catch (error) {
+    console.error('Erro ao buscar produtos da Fake API:', error);
+    throw error;
+  }
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
+async function main() {
+  try {
+    console.log('Iniciando seed do banco de dados...');
+    
+    // Buscar produtos da Fake API
+    const produtos = await fetchProducts();
+    
+    // Limpar tabela existente
+    await prisma.produto.deleteMany();
+    
+    // Inserir novos produtos
+    await prisma.produto.createMany({
+      data: produtos
+    });
+    
+    console.log('Seed concluído com sucesso!');
+  } catch (error) {
+    console.error('Erro durante o seed:', error);
     process.exit(1);
-  })
-  .finally(async () => {
+  } finally {
     await prisma.$disconnect();
-  }); 
+  }
+}
+
+main(); 
