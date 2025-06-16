@@ -1,25 +1,26 @@
 import express from 'express';
-import produtosRoutes from './routes/produtosRoutes.js';
+import { PrismaProdutoRepository } from './infrastructure/repositories/PrismaProdutoRepository.js';
+import { ProdutosService } from './services/produtosService.js';
+import { ProdutosController } from './controllers/produtosController.js';
+import { createProdutosRoutes } from './routes/produtosRoutes.js';
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-
 app.use(express.json());
 
-// Rotas
-app.use(produtosRoutes);
-
-// Middleware para rotas não encontradas
-app.use((req, res) => {
-  res.status(404).json({ error: 'Rota não encontrada' });
+// Rota de health check
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
 });
 
-// Middleware de tratamento de erro básico
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: 'Erro interno do servidor' });
-});
+// Inicialização das dependências
+const produtoRepository = new PrismaProdutoRepository();
+const produtosService = new ProdutosService(produtoRepository);
+const produtosController = new ProdutosController(produtosService);
 
+// Configuração das rotas
+app.use(createProdutosRoutes(produtosController));
+
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });

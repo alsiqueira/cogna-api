@@ -1,21 +1,32 @@
-import { listarProdutos, obterProdutoPorId } from '../services/produtosService.js';
-
-export const getProdutos = (req, res) => {
-  const lista = listarProdutos();
-  res.json(lista);
-};
-
-export const getProdutoById = (req, res) => {
-  const id = Number(req.params.id);
-  if (isNaN(id)) {
-    return res.status(400).json({ error: 'ID inválido' });
+export class ProdutosController {
+  constructor(produtosService) {
+    this.produtosService = produtosService;
   }
 
-  const produto = obterProdutoPorId(id);
+  getProdutos = async (req, res) => {
+    try {
+      const produtos = await this.produtosService.listarProdutos();
+      res.json(produtos);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
 
-  if (!produto) {
-    return res.status(404).json({ error: 'Produto não encontrado' });
-  }
+  getProdutoById = async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'ID inválido' });
+      }
 
-  res.json(produto);
-};
+      const produto = await this.produtosService.obterProdutoPorId(id);
+      res.json(produto);
+    } catch (error) {
+      if (error.message === 'Produto não encontrado') {
+        res.status(404).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  };
+}

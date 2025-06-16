@@ -1,34 +1,24 @@
-# Estágio de build
-FROM node:22-alpine AS builder
+FROM node:22-alpine
 
-# Definir diretório de trabalho
 WORKDIR /app
+
+# Instalar dependências do sistema
+RUN apk add --no-cache openssl netcat-openbsd
 
 # Copiar arquivos de dependências
 COPY package.json yarn.lock ./
 
 # Instalar dependências
-RUN yarn install --frozen-lockfile
+RUN yarn install
 
-# Copiar código fonte
+# Copiar o resto dos arquivos
 COPY . .
 
-# Estágio de produção
-FROM node:22-alpine AS production
+# Gerar cliente Prisma
+RUN npx prisma generate
 
-# Definir diretório de trabalho
-WORKDIR /app
-
-# Copiar apenas os arquivos necessários do estágio de build
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/yarn.lock ./
-COPY --from=builder /app/src ./src
-
-# Instalar apenas dependências de produção
-RUN yarn install --frozen-lockfile --production
-
-# Expor porta
+# Expor a porta
 EXPOSE 3000
 
 # Comando para iniciar a aplicação
-CMD ["node", "src/server.js"] 
+CMD ["yarn", "dev"] 

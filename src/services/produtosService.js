@@ -1,13 +1,17 @@
-const produtos = [
-  { id: 1, nome: 'Produto A', preco: 100 },
-  { id: 2, nome: 'Produto B', preco: 200 },
-  { id: 3, nome: 'Produto C', preco: 300 },
-];
+export class ProdutosService {
+  constructor(produtoRepository) {
+    this.produtoRepository = produtoRepository;
+  }
 
-export const listarProdutos = () => {
-  return produtos;
-};
+  async listarProdutos() {
+    return this.produtoRepository.findAll();
+  }
 
-export const obterProdutoPorId = (id) => {
-  return produtos.find(p => p.id === id);
-};
+  async obterProdutoPorId(id) {
+    const produto = await this.produtoRepository.findById(id);
+    if (!produto) {
+      throw new Error('Produto não encontrado');
+    }
+    return produto;
+  }
+}

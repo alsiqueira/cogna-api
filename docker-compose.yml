@@ -2,21 +2,18 @@ version: '3.8'
 
 services:
   app:
-    build:
-      context: .
-      target: ${NODE_ENV:-production}
+    build: .
     ports:
       - "3000:3000"
     environment:
-      - NODE_ENV=${NODE_ENV:-production}
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/vitrine_cogna?schema=public
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/vitrine_cogna
+      - NODE_ENV=development
+    depends_on:
+      - db
     volumes:
       - .:/app
       - /app/node_modules
-    command: ${COMMAND:-node src/server.js}
-    restart: unless-stopped
-    depends_on:
-      - db
+    command: yarn dev
 
   db:
     image: postgres:16-alpine
@@ -28,7 +25,6 @@ services:
       - POSTGRES_DB=vitrine_cogna
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
 
 volumes:
   postgres_data:
