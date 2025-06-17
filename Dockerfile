@@ -17,8 +17,14 @@ COPY . .
 # Gerar cliente Prisma
 RUN npx prisma generate
 
+# Tornar o script de entrypoint executável
+RUN chmod +x /app/.docker/docker-entrypoint.sh
+
 # Expor a porta
 EXPOSE 3000
 
-# Comando para iniciar a aplicação
+# Definir o entrypoint
+ENTRYPOINT ["/app/.docker/docker-entrypoint.sh"]
+
+# Comando padrão para iniciar a aplicação
 CMD ["yarn", "dev"] 

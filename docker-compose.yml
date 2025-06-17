@@ -13,7 +13,6 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    command: yarn dev
 
   db:
     image: postgres:16-alpine

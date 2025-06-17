@@ -10,7 +10,7 @@ echo "Banco de dados pronto!"
 
 # Executar migrações do Prisma
 echo "Executando migrações do Prisma..."
-npx prisma migrate deploy
+npx prisma migrate dev --name init
 
 # Executar seed do Prisma
 echo "Executando seed do Prisma..."
