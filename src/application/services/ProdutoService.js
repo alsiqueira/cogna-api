@@ -17,19 +17,5 @@ export class ProdutoService {
     return produto;
   }
 
-  async criarProduto(dados) {
-    const produto = new Produto(dados);
-    return this.produtoRepository.create(produto);
-  }
-
-  async atualizarProduto(id, dados) {
-    await this.buscarProdutoPorId(id); // Verifica se existe
-    const produto = new Produto(dados);
-    return this.produtoRepository.update(id, produto);
-  }
-
-  async deletarProduto(id) {
-    await this.buscarProdutoPorId(id); // Verifica se existe
-    return this.produtoRepository.delete(id);
-  }
+ 
 } 
